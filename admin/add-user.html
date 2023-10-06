@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Ekklesia</title>
+
+    <link rel="icon" type="image/x-icon" href="./assets/images/duLogo.png" />
+
+    <!--link to css-->
+    <link rel="stylesheet" href="./assets/css/style.css" />
+
+    <!--material icons-->
+    <script src="https://kit.fontawesome.com/c003743f81.js" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.tiny.cloud/1/bljpfpf9cqn5n345dcb3hu72thrcvbk2rlb47t2xqmuwanr1/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+</head>
+
+<body>
+    <div class="theme-form">
+        <div>
+            <a href="./manage-projects.php" class="btn">Home</a>
+        </div>
+        <div class="theme-toggler margin-top">
+            <i class="fa-solid fa-sun active"></i>
+            <i class="fa-solid fa-moon"></i>
+        </div>
+    </div>
+    <div class="container form-pages">
+        <div class="form">
+            <h2>Add User</h2>
+
+            <form action="add-project.php" enctype="multipart/form-data" method="post">
+                <input type="text" name="surname" value="" placeholder="Surname" />
+                <input type="text" name="firstname" value="" placeholder="Firstname" />
+                <input type="text" name="othernames" value="" placeholder="Other Names" />
+                <div class="form-control">
+                    <h3>Gender</h3>
+                    <select name="gender" id="sort-item">
+                        <option value="">Select gender...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+
+                <input type="hidden" name="admin" value="repo_user" />
+                <!--<input type="text" name="department" placeholder="Department">-->
+                <input type="text" name="phone_number" value="" placeholder="Phone Number" />
+                <input type="text" name="email" value="" placeholder="Email Address" />
+                <input type="password" id="password" value="" name="password" placeholder="Password" />
+                <input type="password" id="confirmpassword" value="" name="passwordConf"
+                    placeholder="Confirm Password" />
+
+                <div class="form-control">
+                    <h3>Denomination</h3>
+                    <select name="denomination" id="sort-item">
+                        <option value="">Select denomination...</option>
+                        <option value="cradle">Cradle Rendezvous</option>
+                        <option value="rehoboth">Victory Rendezvous</option>
+                    </select>
+                </div>
+
+                <div class="form-control">
+                    <h3>Add Image</h3>
+                    <input type="file" name="avatar" />
+                </div>
+
+                <div>
+                    <button type="submit" name="add-project" class="btn">
+                        Add User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!--links to js-->
+    <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/theme-toggler.js"></script>
+
+    <script>
+        tinymce.init({
+            selector: "#editor",
+            plugins:
+                "ai tinycomments mentions anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed permanentpen footnotes advtemplate advtable advcode editimage tableofcontents mergetags powerpaste tinymcespellchecker autocorrect a11ychecker typography inlinecss",
+            toolbar:
+                "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+            tinycomments_mode: "embedded",
+            tinycomments_author: "Author name",
+            mergetags_list: [
+                { value: "First.Name", title: "First Name" },
+                { value: "Email", title: "Email" },
+            ],
+            ai_request: (request, respondWith) =>
+                respondWith.string(() =>
+                    Promise.reject("See docs to implement AI Assistant")
+                ),
+        });
+    </script>
+</body>
+
+</html>

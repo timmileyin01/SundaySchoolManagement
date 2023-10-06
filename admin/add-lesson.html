@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ekklesia</title>
+
+<link rel="icon" type="image/x-icon" href="./assets/images/duLogo.png">
+
+    <!--link to css-->
+    <link rel="stylesheet" href="./assets/css/style.css">
+
+    <!--material icons-->
+    <script src="https://kit.fontawesome.com/c003743f81.js" crossorigin="anonymous"></script>
+
+
+    <script src="https://cdn.tiny.cloud/1/bljpfpf9cqn5n345dcb3hu72thrcvbk2rlb47t2xqmuwanr1/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+</head>
+<body>
+
+
+    <div class="theme-form">
+        <div>
+            <a href="./manage-projects.php" class="btn">Home</a>
+        </div>
+        <div class="theme-toggler margin-top">
+            <i class="fa-solid fa-sun active"></i>
+            <i class="fa-solid fa-moon"></i>
+        </div>
+    </div>
+    <div class="container form-pages">
+        <div class="form">
+            <h2>Add Lesson</h2>
+
+           
+
+            <form action="add-project.php" enctype="multipart/form-data" method="post">
+                <input type="text" name="title" value="" placeholder="Title">
+                <input type="text" name="author" value="" placeholder="Author">
+                <input type="text" name="memory_verse" value="" placeholder="Memory Verse">
+                <input type="text" name="bible_passage" value="" placeholder="Bible Passage">
+                <!--date will be sent as well-->
+                <textarea name="body" id="editor" placeholder="Body"></textarea>
+                
+                <div class="form-control">
+                    <h3>Add Lesson File (pdf, doc, txt, docx)</h3>
+                    <input name="lesson_file" type="file">
+                </div>
+                
+                <div class="form-control">
+                    <h3>Do you want to publish it?</h3>
+                    <select name="published">
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                
+                
+                <div>
+                    <button type="submit" name="add-project" class="btn">Add Lesson</button>
+                </div>
+            </form>
+        </div>
+    </div>
+   
+              
+
+
+
+    <!--links to js-->
+    <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/theme-toggler.js"></script>
+    
+    <script>
+        tinymce.init({
+          selector: '#editor',
+          plugins: 'ai tinycomments mentions anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed permanentpen footnotes advtemplate advtable advcode editimage tableofcontents mergetags powerpaste tinymcespellchecker autocorrect a11ychecker typography inlinecss',
+          toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+          tinycomments_mode: 'embedded',
+          tinycomments_author: 'Author name',
+          mergetags_list: [
+            { value: 'First.Name', title: 'First Name' },
+            { value: 'Email', title: 'Email' },
+          ],
+          ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant"))
+        });
+      </script>
+    
+
+</body>
+</html>
