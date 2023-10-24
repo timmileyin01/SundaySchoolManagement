@@ -15,6 +15,12 @@ if ($conn->connect_error) {
 
 
 
+//Global Varialbles
+define("CSRF_TOKEN_SECRET", 'sjhgjhjsdbshbshb');
+
+
+
+
 
 
 

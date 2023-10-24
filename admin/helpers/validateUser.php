@@ -1,6 +1,14 @@
 <?php
 
+function test_input($data){
 
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+
+    
+}
 
 function validateLogin($user){
     $errors = array();
@@ -27,13 +35,18 @@ function validateUser($user){
         array_push($errors, 'Surname is required');
     }
 
-    if(empty($user['firstname'])){
+    if (empty($user['firstname'])) {
         array_push($errors, 'Firstname is required');
+    }elseif ($user['firstname'] && !preg_match("/^[a-zA-Z-']*$/", $user['firstname']) || $user['surname'] && !preg_match("/^[a-zA-Z-']*$/", $user['surname']) || $user['denomination'] && !preg_match("/^[a-zA-Z-']*$/", $user['denomination']) || $user['othernames'] && !preg_match("/^[a-zA-Z-']*$/", $user['othernames']) || $user['gender'] && !preg_match("/^[a-zA-Z-']*$/", $user['gender'])) {
+        array_push($errors, 'Only letters and whitespaces allowed');
     }
 
-    if(strlen($user['id_number']) > 10){
-        array_push($errors, 'Username must not be more 10 Characters');
+    if (empty($user['denomination'])) {
+        array_push($errors, 'Denomination is required');
     }
+
+
+    
 
     if(empty($user['gender'])){
         array_push($errors, 'Select Gender');
@@ -41,26 +54,33 @@ function validateUser($user){
 
     if(empty($user['email'])){
         array_push($errors, 'Email is required');
-    }
+    } /* elseif ($user['email'] && !filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+        array_push($errors, 'Check Your Email');
+    } */
 
-    if(empty($user['password'])){
-        array_push($errors, 'Password is required');
-    }
+    if(empty($user['phone_number'])){
+        array_push($errors, 'Phone Number is required');
+    }/* elseif ($user['phone_number'] && !preg_match("/^[0-9']*$/", $user['phone_number'])) {
+        array_push($errors, 'Check Your Phone Number');
+    }*/
 
     
 
-    if(strlen($user['password']) < 6){
+    if(empty($user['password'])){
+        array_push($errors, 'Password is required');
+    }elseif($user['password'] && strlen($user['password']) < 6){
         array_push($errors, 'Password is too short (6+)');
+    }elseif($user['password'] && strlen($user['password']) > 21){
+        array_push($errors, 'Password is too long');
     }
 
-    if(!preg_match("/^[\w\-]+@[\w\-]+.[\w\-]+$/", $user['email'])){
-        array_push($errors, 'Invalid Email');
-    }
 
     if($user['passwordConf'] !== $user['password']){
         array_push($errors, 'Passwords do not match');
     }
 
+
+    /*
     $existingUser = selectOne('users', ['email' => $user['email']]);
     $existingUser1 = selectOne('users', ['id_number' => $user['id_number']]);
     
@@ -68,7 +88,7 @@ function validateUser($user){
 
     if($existingUser || $existingUser1){
         array_push($errors, 'User exists');
-    }
+    }*/
 
     
 
@@ -134,6 +154,10 @@ function validateUserUpdate($user){
     return $errors;
 }
 
+
+
+
+
 function validateRegister($user){
 
     $errors = array();
@@ -142,13 +166,21 @@ function validateRegister($user){
         array_push($errors, 'Surname is required');
     }
 
-    if(empty($user['firstname'])){
+    if (empty($user['firstname'])) {
         array_push($errors, 'Firstname is required');
     }
-
-    if(strlen($user['id_number']) > 10){
-        array_push($errors, 'Username must not be more 10 Characters');
+    
+    
+    if ($user['firstname'] && !preg_match("/^[a-zA-Z-']*$/", $user['firstname']) || $user['surname'] && !preg_match("/^[a-zA-Z-']*$/", $user['surname']) || $user['denomination'] && !preg_match("/^[a-zA-Z-']*$/", $user['denomination']) || $user['othernames'] && !preg_match("/^[a-zA-Z-']*$/", $user['othernames']) || $user['gender'] && !preg_match("/^[a-zA-Z-']*$/", $user['gender'])) {
+        array_push($errors, 'Only letters and whitespaces allowed');
     }
+
+    if (empty($user['denomination'])) {
+        array_push($errors, 'Denomination is required');
+    }
+
+
+    
 
     if(empty($user['gender'])){
         array_push($errors, 'Select Gender');
@@ -156,24 +188,41 @@ function validateRegister($user){
 
     if(empty($user['email'])){
         array_push($errors, 'Email is required');
+    }elseif ($user['email'] && !filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+        array_push($errors, 'Check Your Email');
     }
+
+    if(empty($user['phone_number'])){
+        array_push($errors, 'Phone Number is required');
+    }elseif ($user['phone_number'] && !preg_match("/^[0-9]+$/", $user['phone_number'])) {
+        array_push($errors, 'Check Your Phone Number');
+    }
+
+    
 
     if(empty($user['password'])){
         array_push($errors, 'Password is required');
-    }
-
-
-    if(strlen($user['password']) < 6){
+    }elseif($user['password'] && strlen($user['password']) < 6){
         array_push($errors, 'Password is too short (6+)');
+    }elseif($user['password'] && strlen($user['password']) > 21){
+        array_push($errors, 'Password is too long');
     }
 
-    if(!preg_match("/^[\w\-]+@[\w\-]+.[\w\-]+$/", $user['email'])){
-        array_push($errors, 'Invalid Email');
-    }
 
     if($user['passwordConf'] !== $user['password']){
         array_push($errors, 'Passwords do not match');
     }
+
+
+    /*
+    $existingUser = selectOne('users', ['email' => $user['email']]);
+    $existingUser1 = selectOne('users', ['id_number' => $user['id_number']]);
+    
+
+
+    if($existingUser || $existingUser1){
+        array_push($errors, 'User exists');
+    }*/
 
     
 

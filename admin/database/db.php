@@ -127,3 +127,41 @@ function delete($table, $id){
     return $stmt->affected_rows;
 }
 
+
+
+
+function createToken() {
+    $seed = random_bytes(8);
+    $t = time();
+    //session_id();
+
+    $hash = hash_hmac('sha256', session_id() . $seed . $t, CSRF_TOKEN_SECRET, true);
+    return urlSaveEncode($hash . '|' . $seed . '|' . $t);
+    
+}
+
+function validateToken($token) {
+
+    $parts = explode('|', urlSaveDecode($token));
+
+    if (count($parts) === 3) {
+        $hash = hash_hmac('sha256', session_id() . $parts[1] . $parts[2], CSRF_TOKEN_SECRET, true);
+
+        if (hash_equals($hash, $parts[0])) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+function urlSaveEncode($m){
+    return rtrim(strtr(base64_encode($m), '+/', '-_'), '=');
+}
+
+function urlSaveDecode($m){
+    return base64_decode(strtr($m, '-_', '+/' ));
+}
+
+
