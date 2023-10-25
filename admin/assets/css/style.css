@@ -159,6 +159,19 @@ border-radius: var(--border-radius-1);
     background: var(--color-box3);
 }
 
+.btn_blue{
+    padding: 5px 12px 5px 12px;
+    border-radius: 12px;
+    background: var(--color-box2);
+    color: white;
+    cursor: pointer;
+    transition: all 300ms ease;
+}
+
+.btn_blue:hover{
+    background: var(--color-box1);
+}
+
 
 /*styling of messages section*/
 .message-alert.error{

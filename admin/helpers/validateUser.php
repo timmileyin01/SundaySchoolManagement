@@ -214,15 +214,15 @@ function validateRegister($user){
     }
 
 
-    /*
+    
     $existingUser = selectOne('users', ['email' => $user['email']]);
-    $existingUser1 = selectOne('users', ['id_number' => $user['id_number']]);
+   
     
 
 
-    if($existingUser || $existingUser1){
+    if($existingUser){
         array_push($errors, 'User exists');
-    }*/
+    }
 
     
 

@@ -1,5 +1,9 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 include(base_app . "database/db.php");
 include(base_app . "helpers/validateUser.php");
 
@@ -33,36 +37,6 @@ if (isset($_GET['id'])) {
     $id_number = $user['id_number'];
 }
 
-
-if (isset($_GET['del_id'])) {
-    $id = $_GET['del_id'];
-
-
-    $user = selectOne($table, ['id' => $id]);
-
-    $image = $user['avatar'];
-    $path = (base_app . 'uploads/') . $image;
-
-    $count = delete($table, $id);
-
-    if (file_exists($path)) {
-        unlink($path);
-
-        $_SESSION['message'] = 'User Deleted successfully';
-        $_SESSION['type'] = 'success';
-
-
-        header("location: " . './manage-users.php');
-        exit();
-    } else {
-        $_SESSION['message'] = 'User not Deleted';
-        $_SESSION['type'] = 'error';
-
-
-        header("location: " . './manage-users.php');
-        exit();
-    }
-}
 
 
 
@@ -99,6 +73,76 @@ function loginUser($user)
 
         exit();
     }
+}
+
+function loginUserReg($user)
+{
+
+
+
+    
+
+    $email = $user['email'];
+    //Import PHPMailer classes into the global namespace
+    //These must be at the top of your script, not inside a function
+
+
+
+    require(base_app . 'PHPMailer/src/Exception.php');
+    require(base_app . 'PHPMailer/src/PHPMailer.php');
+    require(base_app . 'PHPMailer/src/SMTP.php');
+
+    //Create an instance; passing `true` enables exceptions
+    $mail = new PHPMailer(true);
+
+    try {
+        //Server settings
+        //Enable verbose debug output
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = 'oluwaseyitimm@gmail.com';                     //SMTP username
+        $mail->Password   = 'islfxkohzjlcvdjq';                               //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        //Recipients
+        $mail->setFrom('oluwaseyitimm@gmail.com', 'Ekklesia');
+        $mail->addAddress($email, $user['firstname']);     //Add a recipient
+
+
+
+
+        //Content
+        $mail->isHTML(true);                                  //Set email format to HTML
+
+        $verification_code = rand(100000, 999999);;
+        $mail->Subject = 'Email Verification';
+        $mail->Body    = '<p>Your verification code is : <b style="font-size:30px;">' . $verification_code . '</b></p>';
+
+
+
+
+        $mail->send();
+        $content = array('verification_code' => $verification_code);
+
+        $id = $user['id'];
+
+
+        $user_id = update('users', $id, $content);
+
+        //echo 'Message has been sent';
+    } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    }
+
+    $_SESSION['message'] = $user['firstname'] . ', Verification code has been sent to your mail box';
+    $_SESSION['type'] = 'success';
+    $_SESSION['email_verify'] = $email;
+
+    header('location: ' . './email_verification');
+
+    exit();
 }
 
 if (isset($_POST['login-btn'])) {
@@ -163,9 +207,9 @@ if (isset($_POST['register'])) {
 
                         $id = $verify['id'];
 
-                        $post = selectOne($table, ['id' => $id]);
 
-                       
+
+
 
                         $_POST['avatar'] = $file_name;
 
@@ -176,30 +220,30 @@ if (isset($_POST['register'])) {
                         unset($_POST['register'], $_POST['passwordConf'], $_POST['csrf_token']);
 
 
-                       
-                            $result = move_uploaded_file($_FILES['avatar']['tmp_name'], $destination);
-                            if ($result) {
+                        $user_id = update($table, $id, $_POST);
+
+                        $result = move_uploaded_file($_FILES['avatar']['tmp_name'], $destination);
+                        if ($result) {
 
 
-                                $user_id = update($table, $id, $_POST);
 
 
 
-                                $login = selectOne($table, ['id' => $id]);
-                                loginUser($login);
-                            } else {
-                                array_push($errors, "Failed to Upload Image");
-                                $surname = $_POST['surname'];
-                                $firstname = $_POST['firstname'];
-                                $email = $_POST['email'];
-                                $othernames = $_POST['othernames'];
-                                $gender = $_POST['gender'];
-                                $denomination = $_POST['denomination'];
-                                $phone_number = $_POST['phone_number'];
-                                $password = $_POST['password'];
-                                $passwordConf = $_POST['passwordConf'];
-                            }
-                        
+
+                            $login = selectOne($table, ['id' => $id]);
+                            loginUserReg($login);
+                        } else {
+                            array_push($errors, "Failed to Upload Image");
+                            $surname = $_POST['surname'];
+                            $firstname = $_POST['firstname'];
+                            $email = $_POST['email'];
+                            $othernames = $_POST['othernames'];
+                            $gender = $_POST['gender'];
+                            $denomination = $_POST['denomination'];
+                            $phone_number = $_POST['phone_number'];
+                            $password = $_POST['password'];
+                            $passwordConf = $_POST['passwordConf'];
+                        }
                     }
                 } else {
                     array_push($errors, "Image Required");
@@ -248,7 +292,7 @@ if (isset($_POST['register'])) {
             $passwordConf = $_POST['passwordConf'];
         }
     } else {
-        array_push($errors, 'Invalid Form Sent, Reload Form');
+        array_push($errors, 'Something went wrong, Reload Form');
         $surname = $_POST['surname'];
         $firstname = $_POST['firstname'];
         $email = $_POST['email'];
@@ -258,211 +302,5 @@ if (isset($_POST['register'])) {
         $phone_number = $_POST['phone_number'];
         $password = $_POST['password'];
         $passwordConf = $_POST['passwordConf'];
-    }
-}
-
-
-
-
-
-
-if (isset($_POST['add-user'])) {
-    $password1 = $_POST['password'];
-    $password1_hash = $_POST['passwordConf'];
-    $errors = validateUser($_POST);
-
-    $formIndex = 'avatar';
-
-
-    $filetype = ['jpg', 'png', 'webp', 'jpeg'];
-
-
-    $file_s = selectOne('settings', ['id' => 1]);
-    $filesize = $file_s['max_upload'];
-
-
-
-
-
-
-
-
-
-
-    if (count($errors) === 0) {
-
-
-        unset($_POST['add-user'], $_POST['passwordConf']);
-
-        if (!empty($_FILES['avatar']['name'])) {
-            $file_name = time() . '_' . $_FILES['avatar']['name'];
-            $destination = base_app . "uploads/" . $file_name;
-            $errors = validateFile($_FILES, $formIndex, $filetype, $filesize);
-            if (count($errors) == 0) {
-                $result = move_uploaded_file($_FILES['avatar']['tmp_name'], $destination);
-
-                if ($result) {
-                    $_POST['avatar'] = $file_name;
-                } else {
-                    array_push($errors, "Failed to Upload Image");
-                }
-            }
-        } else {
-            array_push($errors, "Image Required");
-        }
-
-        $password_hash = $_POST['password'];
-        $_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-        if ($_POST['admin'] == 1) {
-            $_POST['admin'] = 'repo_user';
-        } elseif ($_POST['admin'] == 2) {
-            $_POST['admin'] = 'repo_admin';
-        } elseif ($_POST['admin'] == 3) {
-            $_POST['admin'] = 'repo_super_admin';
-        }
-
-        $user_id = create($table, $_POST);
-
-        $_SESSION['message'] = 'User Created successfully';
-        $_SESSION['type'] = 'success';
-
-
-        header("location: " . './manage-users.php');
-        exit();
-    } else {
-        $surname = $_POST['surname'];
-        $firstname = $_POST['firstname'];
-        $email = $_POST['email'];
-        $othernames = $_POST['othernames'];
-        if ($_POST['admin'] == 1) {
-            $_POST['admin'] = 'repo_user';
-        } elseif ($_POST['admin'] == 2) {
-            $_POST['admin'] = 'repo_admin';
-        } elseif ($_POST['admin'] == 3) {
-            $_POST['admin'] = 'repo_super_admin';
-        }
-        $admin = $_POST['admin'];
-        $gender = $_POST['gender'];
-
-        $id_number = $_POST['id_number'];
-        $password = $password1;
-        $passwordConf = $password1_hash;
-    }
-}
-
-if (isset($_POST['add-matric'])) {
-
-    $matric = $_POST['id_number'];
-    $user = selectOne($table, ['id_number' => $matric]);
-    unset($_POST['add-matric']);
-
-    if (!$matric) {
-        array_push($errors, "You need to put a Matric ID");
-    } elseif ($user) {
-        array_push($errors, "User Exists");
-    } else {
-        $user_id = create($table, $_POST);
-
-        $_SESSION['message'] = 'Matric Added successfully';
-        $_SESSION['type'] = 'success';
-    }
-}
-
-
-
-
-
-
-
-if (isset($_POST['edit-user'])) {
-    $password1 = $_POST['password'];
-    $password1_hash = $_POST['passwordConf'];
-    $id = $_SESSION['use_id'];
-
-    $errors = validateUserUpdate($_POST);
-    unset($_POST['update-user'], $_POST['id'], $_POST['passwordConf']);
-
-
-    $formIndex = 'avatar';
-
-
-    $filetype = ['jpg', 'png', 'webp', 'jpeg'];
-
-
-    $file_s = selectOne('settings', ['id' => 1]);
-    $filesize = $file_s['max_upload'];
-
-
-
-
-
-    if (count($errors) === 0) {
-
-
-        unset($_POST['edit-user'], $_POST['passwordConf']);
-
-        if (!empty($_FILES['avatar']['name'])) {
-            $file_name = time() . '_' . $_FILES['avatar']['name'];
-            $destination = base_app . "uploads/" . $file_name;
-            $errors = validateFile($_FILES, $formIndex, $filetype, $filesize);
-            if (count($errors) == 0) {
-                $result = move_uploaded_file($_FILES['avatar']['tmp_name'], $destination);
-
-                if ($result) {
-                    $_POST['avatar'] = $file_name;
-                } else {
-                    array_push($errors, "Failed to Upload Image");
-                }
-            }
-        } else {
-            array_push($errors, "Image Required");
-        }
-
-        $password_hash = $_POST['password'];
-        $_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-        if ($_POST['admin'] == 1) {
-            $_POST['admin'] = 'repo_user';
-        } elseif ($_POST['admin'] == 2) {
-            $_POST['admin'] = 'repo_admin';
-        }
-
-        $post = selectOne($table, ['id' => $id]);
-
-        $file1 = $post['avatar'];
-        $path1 = (base_app . 'uploads/') . $file1;
-
-
-        if (file_exists($path1)) {
-            unlink($path1);
-        }
-
-        $user_id = update($table, $id, $_POST);
-
-        unset($_SESSION['use_id']);
-
-        $_SESSION['message'] = 'User Updated successfully';
-        $_SESSION['type'] = 'success';
-
-
-        header("location: " . './manage-users.php');
-        exit();
-    } else {
-        $surname = $_POST['surname'];
-        $firstname = $_POST['firstname'];
-        $email = $_POST['email'];
-        $othernames = $_POST['othernames'];
-        if ($_POST['admin'] == 1) {
-            $_POST['admin'] = 'repo_user';
-        } elseif ($_POST['admin'] == 2) {
-            $_POST['admin'] = 'repo_admin';
-        }
-        $admin = $_POST['admin'];
-        $gender = $_POST['gender'];
-
-        $id_number = $_POST['id_number'];
-        $password = $password1;
-        $passwordConf = $password1_hash;
     }
 }

@@ -97,6 +97,17 @@ function create($table, $data){
 }
 
 
+function prepare_sql($sql)
+                        {
+                            global $conn;
+                            $stmt = $conn->prepare($sql);
+                            $stmt->execute();
+                            $records = $stmt->get_result();
+                            return $records;
+                        }
+
+
+
 
 function update($table, $id, $data){
     global $conn;

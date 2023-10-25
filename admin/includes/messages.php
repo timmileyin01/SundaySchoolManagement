@@ -1,3 +1,5 @@
+
+
 <?php if(isset($_SESSION['message'])): ?>
     <div class="message-alert <?php echo $_SESSION['type']; ?>">
         <p>
