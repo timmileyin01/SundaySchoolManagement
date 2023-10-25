@@ -1,5 +1,20 @@
 <?php include './includes/formHeader.php';
-include './admin/controllers/users.php'; ?>
+include './admin/controllers/users.php'; 
+
+
+
+
+
+
+if (isset($_POST['reset'])) {
+   header('location: ' . './password_reset'); 
+}
+
+
+
+
+
+?>
 
 <div class="container form-pages">
     <div class="form">
@@ -10,10 +25,10 @@ include './admin/controllers/users.php'; ?>
 
 
         <form action="login" method="post">
+        <input type="hidden" name="csrf_token" value="<?= createToken(); ?>">
 
 
-
-            <input type="text" name="username" value="<?= $email ?>" placeholder="Email or Phone Number">
+            <input type="text" name="username" value="<?= $username ?>" placeholder="Email or Phone Number">
 
 
 
@@ -32,7 +47,7 @@ include './admin/controllers/users.php'; ?>
 
                 <div>
                     <span class="text-muted">Forgot Password?</span>
-                    <button type="submit" name="resend" class="btn_blue">Reset</button>
+                    <button type="submit" name="reset" class="btn_blue">Reset</button>
                 </div>
             </form>
 

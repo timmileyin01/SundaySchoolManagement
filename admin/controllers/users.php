@@ -19,6 +19,7 @@ $denomination = "";
 $phone_number = "";
 $password = "";
 $passwordConf = "";
+$username = "";
 
 $table = 'users';
 
@@ -45,7 +46,7 @@ function loginUser($user)
     $_SESSION['id'] = $user['id'];
     $_SESSION['unique_id'] = $user['unique_id'];
 
-    if ($user['admin'] == 'repo_super_admin') {
+    if ($user['admin'] == 'church_super_admin') {
         $_SESSION['admin'] = 'church_super_admin';
         $_SESSION['message'] = 'Welcome, ' . $user['firstname'];
         $_SESSION['type'] = 'success';
@@ -80,7 +81,7 @@ function loginUserReg($user)
 
 
 
-    
+
 
     $email = $user['email'];
     //Import PHPMailer classes into the global namespace
@@ -101,13 +102,13 @@ function loginUserReg($user)
         $mail->isSMTP();                                            //Send using SMTP
         $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
         $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-        $mail->Username   = 'oluwaseyitimm@gmail.com';                     //SMTP username
-        $mail->Password   = 'islfxkohzjlcvdjq';                               //SMTP password
+        $mail->Username   = 'oluwaseyitimm02@gmail.com';                     //SMTP username
+        $mail->Password   = 'jizdzdhkwmvfyvya';                               //SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
         $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
         //Recipients
-        $mail->setFrom('oluwaseyitimm@gmail.com', 'Ekklesia');
+        $mail->setFrom('oluwaseyitimm02@gmail.com', 'Ekklesia');
         $mail->addAddress($email, $user['firstname']);     //Add a recipient
 
 
@@ -146,21 +147,30 @@ function loginUserReg($user)
 }
 
 if (isset($_POST['login-btn'])) {
-    $errors = validateLogin($_POST);
+    if (isset($_POST['csrf_token']) && validateToken($_POST['csrf_token'])) {
+        $errors = validateLogin($_POST);
 
-    if (count($errors) === 0) {
-        $user = selectOne($table, ['id_number' => $_POST['id_number']]);
+        if (count($errors) === 0) {
+            $user = selectOne($table, ['email' => $_POST['username'], 'verified' => '1']);
+            $user1 = selectOne($table, ['phone_number' => $_POST['username'], 'verified' => '1']);
 
 
-        if ($user && password_verify($_POST['password'], $user['password'])) {
-            loginUser($user);
-        } else {
-            array_push($errors, 'wrong credentials');
+            if ($user && password_verify($_POST['password'], $user['password'])) {
+                loginUser($user);
+            } elseif ($user1 && password_verify($_POST['password'], $user1['password'])) {
+                loginUser($user1);
+            } else {
+                array_push($errors, 'wrong credentials or Your Account has not been verified');
+            }
         }
-    }
 
-    $id_number = $_POST['id_number'];
-    $password = $_POST['password'];
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+    } else {
+        array_push($errors, 'Something went wrong, Reload Form');
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+    }
 }
 
 

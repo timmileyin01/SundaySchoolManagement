@@ -129,6 +129,7 @@ function update($table, $id, $data){
 }
 
 
+
 function delete($table, $id){
     global $conn;
     
@@ -137,6 +138,7 @@ function delete($table, $id){
     $stmt = executeQuery($sql, ['id' => $id]);
     return $stmt->affected_rows;
 }
+
 
 
 

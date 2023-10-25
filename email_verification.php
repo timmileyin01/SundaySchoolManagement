@@ -12,8 +12,11 @@ include './admin/controllers/users.php';
 
 $errors = array();
 
+$verification_code = "";
 
 if (isset($_POST['verify-btn'])) {
+
+    if (isset($_POST['csrf_token']) && validateToken($_POST['csrf_token'])) {
 
     if (!empty($_POST['verification_code'])) {
         $email = $_POST['email'];
@@ -24,11 +27,12 @@ if (isset($_POST['verify-btn'])) {
         if ($_POST['verification_code'] === $user['verification_code']) {
             $id = $user['id'];
 
-            $content = array('verified' => 1);
+            $content = array('verified' => 1, 'verification_code' => null);
 
             $id = $user['id'];
 
             $user_id = update('users', $id, $content);
+            
             unset($_SESSION['email_verify']);
 
             $_SESSION['message'] = $user['firstname'] . ' You have been Verified, Kindly Login ';
@@ -40,10 +44,15 @@ if (isset($_POST['verify-btn'])) {
             exit();
         } else {
             array_push($errors, "Invalid Verification Code");
+            $verification_code = $_POST['verification_code'];
         }
     } else {
         array_push($errors, "Enter Verification Code");
+        $verification_code = $_POST['verification_code'];
     }
+}else{
+    array_push($errors, 'Something went wrong, Reload Form');
+}
 }
 
 
@@ -71,13 +80,13 @@ if (isset($_POST['resend'])) {
         $mail->isSMTP();                                            //Send using SMTP
         $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
         $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-        $mail->Username   = 'oluwaseyitimm@gmail.com';                     //SMTP username
-        $mail->Password   = 'islfxkohzjlcvdjq';                               //SMTP password
+        $mail->Username   = 'oluwaseyitimm02@gmail.com';                     //SMTP username
+        $mail->Password   = 'jizdzdhkwmvfyvya';                               //SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
         $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
         //Recipients
-        $mail->setFrom('oluwaseyitimm@gmail.com', 'Ekklesia');
+        $mail->setFrom('oluwaseyitimm02@gmail.com', 'Ekklesia');
         $mail->addAddress($email, $user['firstname']);     //Add a recipient
 
 
@@ -130,10 +139,11 @@ if (isset($_POST['resend'])) {
 
 
         <form action="" method="post">
+        <input type="hidden" name="csrf_token" value="<?= createToken(); ?>">
             <input type="hidden" name="email" value="<?php if (isset($_SESSION['email_verify'])) {
                                                             echo $_SESSION['email_verify'];
                                                         } ?>" placeholder="Phone Number or Email">
-            <input type="text" name="verification_code" value="<?= $_SESSION['email_verify'] ?>" placeholder="Verification Code">
+            <input type="text" name="verification_code" value="<?= $verification_code ?>" placeholder="Verification Code">
             <div>
                 <button type="submit" name="verify-btn" class="btn">Verify</button>
             </div>
@@ -141,6 +151,7 @@ if (isset($_POST['resend'])) {
         </form>
 
         <form action="" method="post">
+
            
             <div>
             <span class="text-muted">Did not receive code?</span>

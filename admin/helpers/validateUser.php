@@ -13,8 +13,8 @@ function test_input($data){
 function validateLogin($user){
     $errors = array();
 
-    if (empty($user['id_number'])) {
-        array_push($errors, 'Matric no. or Staff id. is required');
+    if (empty($user['username'])) {
+        array_push($errors, 'Email or Phone Number is required');
     }
 
     if (empty($user['password'])) {
@@ -214,15 +214,18 @@ function validateRegister($user){
     }
 
 
-    
-    $existingUser = selectOne('users', ['email' => $user['email']]);
+    if (!empty($user['email'])) {
+        $existingUser = selectOne('users', ['email' => $user['email']]);
    
     
 
 
-    if($existingUser){
-        array_push($errors, 'User exists');
+        if($existingUser){
+            array_push($errors, 'User Exists');
+        }
     }
+    
+   
 
     
 
